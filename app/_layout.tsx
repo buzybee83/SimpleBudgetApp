@@ -5,7 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import { useEffect } from 'react';
 
-import { initDatabase } from '@/services/database';
+import { initDatabase } from '@/services/db/DatabaseService';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 
