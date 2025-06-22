@@ -2,6 +2,7 @@ import SQLite from 'react-native-sqlite-storage';
 
 SQLite.enablePromise(true);
 
+// Name of the SQLite database used by the app
 const DB_NAME = 'budget.db';
 
 function getDb() {
@@ -10,8 +11,9 @@ function getDb() {
 
 export async function initDatabase() {
   const db = await getDb();
+  // Table to store all income related events
   await db.executeSql(
-    `CREATE TABLE IF NOT EXISTS income (
+    `CREATE TABLE IF NOT EXISTS income_events (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       amount REAL,
       description TEXT,
