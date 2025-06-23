@@ -1,24 +1,24 @@
-import React from 'react';
-import {
-	StyleSheet,
-	View,
-	Image,
-	StatusBar,
-	Keyboard,
-	KeyboardAvoidingView
-} from 'react-native';
-import { StackActions } from '@react-navigation/native';
-import update from 'react-addons-update';
-import { Text } from 'react-native-paper';
-import { Button } from 'react-native-elements';
 import { Ionicons } from '@expo/vector-icons';
+import { StackActions } from '@react-navigation/native';
+import React from 'react';
+import update from 'react-addons-update';
+import {
+	Image,
+	Keyboard,
+	KeyboardAvoidingView,
+	StatusBar,
+	StyleSheet,
+	View
+} from 'react-native';
 import AppIntroSlider from 'react-native-app-intro-slider';
+import { Button } from 'react-native-elements';
+import { Text } from 'react-native-paper';
 
-import { Context as BudgetContext } from '../context/BudgetContext';
-import { ConstructSlides, DeconstructSlides } from '../services/IntroSlidesComposer';
-import { Constants } from '../constants/Theme';
-import Layout from '../constants/Layout';
-import InitialFlowForm from '../components/InitialFlowForm';
+import InitialFlowForm from '../../components/InitialFlowForm';
+import Layout from '../../constants/Layout';
+import { Constants } from '../../constants/Theme';
+import { Context as BudgetContext } from '../../context/BudgetContext';
+import { ConstructSlides, DeconstructSlides } from '../../services/IntroSlidesComposer';
 
 StatusBar.setBarStyle('light-content');
 

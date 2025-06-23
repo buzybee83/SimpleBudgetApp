@@ -1,13 +1,10 @@
 import * as WebBrowser from 'expo-web-browser';
-import React, { useContext } from 'react';
+import React from 'react';
 import { Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Button } from 'react-native-elements';
-import { Context as AuthContext } from '../context/AuthContext';
 
 export default function HomeScreen({ navigation }) {
-    const { logout } = useContext(AuthContext);
     const handleLogout = async () => {
-        await logout();
         navigation.replace('Main', {screen: 'Auth'});
     }
 

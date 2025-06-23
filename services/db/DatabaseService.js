@@ -1,3 +1,4 @@
+
 import SQLite from 'react-native-sqlite-storage';
 
 SQLite.enablePromise(true);
@@ -10,64 +11,157 @@ function getDb() {
 
 export async function initDatabase() {
 	const db = await getDb();
-	
-	//  USERS (Cloud Only)
+
 	await db.executeSql(
-		`CREATE TABLE users (
+		`CREATE TABLE IF NOT EXISTS users (
 			id UUID PRIMARY KEY,
 			email TEXT UNIQUE NOT NULL,
 			password_hash TEXT,
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-		);`
+   		);`
 	);
+
 	await db.executeSql(
-		`CREATE TABLE income_events (
-			id UUID PRIMARY KEY,
-			user_id UUID,
-			name TEXT,
-			amount NUMERIC NOT NULL,
-			date DATE NOT NULL,
-			recurring BOOLEAN DEFAULT FALSE,
+		`CREATE TABLE IF NOT EXISTS settings (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			user_id TEXT UNIQUE NOT NULL,
+			projected_savings REAL,
+			show_preview BOOLEAN DEFAULT 1,
+			intro_status TEXT,
+			first_pay_date TEXT,
+			income_type TEXT CHECK(income_type IN ('Weekly', 'Bi-Weekly', 'Semi-Monthly', 'Monthly')) DEFAULT 'Bi-Weekly',
+			income_amount REAL,
+			threshold_enabled BOOLEAN DEFAULT 0,
+			threshold_amount REAL,
+			savings_enabled BOOLEAN DEFAULT 0,
+			savings_override BOOLEAN DEFAULT 0,
+			savings_amount REAL,
+			savings_amount_type TEXT CHECK(savings_amount_type IN ('%', '$')) DEFAULT '%',
+			created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+			updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+ 		);`
+	);
+
+	await db.executeSql(
+		`CREATE TABLE IF NOT EXISTS monthly_details (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			budget_id INTEGER NOT NULL,
+			month TEXT NOT NULL,
+			total_income REAL DEFAULT 0,
+			total_expenses REAL DEFAULT 0,
+			expenses_paid REAL DEFAULT 0,
+			total_savings REAL DEFAULT 0,
+			balance REAL DEFAULT 0,
+			is_active BOOLEAN DEFAULT 1,
+			created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+			updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+			FOREIGN KEY (budget_id) REFERENCES settings(id)
+    	);`
+	);
+
+	await db.executeSql(
+		`CREATE TABLE IF NOT EXISTS monthly_savings (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			month_id INTEGER NOT NULL,
+			income_id INTEGER NOT NULL,
+			amount REAL NOT NULL,
+			FOREIGN KEY (month_id) REFERENCES monthly_details(id),
+			FOREIGN KEY (income_id) REFERENCES incomes(id)
+    	);`
+	);
+
+	await db.executeSql(
+		`CREATE TABLE IF NOT EXISTS incomes (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			budget_id INTEGER NOT NULL,
+			description TEXT NOT NULL,
+			expected_date TEXT NOT NULL,
+			is_automated BOOLEAN DEFAULT 1,
+			frequency_type TEXT DEFAULT 'Paycheck',
+			frequency TEXT DEFAULT 'Bi-Weekly',
+			amount REAL NOT NULL,
+			created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+			updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    	);`
+	);
+
+	await db.executeSql(
+		`CREATE TABLE IF NOT EXISTS income_events (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			income_id INTEGER NOT NULL,
+			budget_id INTEGER NOT NULL,
+			description TEXT NOT NULL,
+			expected_date TEXT NOT NULL,
+			amount REAL NOT NULL,
+			override BOOLEAN DEFAULT 0,
+			created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+			updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+			FOREIGN KEY (income_id) REFERENCES incomes(id),
+			FOREIGN KEY (budget_id) REFERENCES settings(id)
+    	);`
+	);
+
+	await db.executeSql(
+		`CREATE TABLE IF NOT EXISTS expenses (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			budget_id INTEGER NOT NULL,
+			income_id INTEGER,
+			name TEXT NOT NULL,
+			due_day TEXT NOT NULL,
+			amount REAL NOT NULL,
+			split_amount REAL,
+			is_paid BOOLEAN DEFAULT 0,
+			is_recurring BOOLEAN DEFAULT 1,
+			recurring_type TEXT CHECK(recurring_type IN ('Weekly', 'Bi-Weekly', 'Semi-Monthly', 'Monthly', 'Bi-Monthly')) DEFAULT 'Monthly',
+			split BOOLEAN DEFAULT 0,
+			fixed_amount BOOLEAN DEFAULT 0,
+			sequence_tag TEXT,
+			status TEXT CHECK(status IN ('A', 'D')) DEFAULT 'A',
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-		);`
+    	);`
 	);
+
 	await db.executeSql(
-		`CREATE TABLE expenses (
-			id UUID PRIMARY KEY,
-			user_id UUID,
-			name TEXT,
-			amount NUMERIC NOT NULL,
-			due_date DATE,
-			recurring BOOLEAN DEFAULT FALSE,
-			category TEXT,
-			envelope_id UUID,
-			linked_income_id UUID,
+		`CREATE TABLE IF NOT EXISTS expense_events (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			expense_id INTEGER NOT NULL,
+			budget_id INTEGER NOT NULL,
+			name TEXT NOT NULL,
+			due_day TEXT NOT NULL,
+			amount REAL NOT NULL,
+			is_paid BOOLEAN DEFAULT 0,
+			override BOOLEAN DEFAULT 0,
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-		);`
+			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			FOREIGN KEY (expense_id) REFERENCES expenses(id),
+			FOREIGN KEY (budget_id) REFERENCES settings(id)
+    	);`
 	);
+
 	await db.executeSql(
-		`CREATE TABLE envelopes (
+		`CREATE TABLE IF NOT EXISTS envelopes (
 			id UUID PRIMARY KEY,
 			user_id UUID,
 			name TEXT NOT NULL,
 			budgeted_amount NUMERIC NOT NULL,
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-		);`
+    	);`
 	);
+
 	await db.executeSql(
-		`CREATE TABLE envelope_allocations (
-			id UUID PRIMARY KEY
-			user_id UUID
-			income_id UUID
-			envelope_id UUID
-			amount NUMERIC
+		`CREATE TABLE IF NOT EXISTS envelope_allocations (
+			id UUID PRIMARY KEY,
+			user_id UUID,
+			income_id UUID,
+			envelope_id UUID,
+			amount NUMERIC,
 			created_at TIMESTAMP
 		);`
 	);
+
 	await db.executeSql(
 		`CREATE TABLE IF NOT EXISTS debts (
 			id UUID PRIMARY KEY,
@@ -81,6 +175,7 @@ export async function initDatabase() {
 			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		);`
 	);
+
 	await db.executeSql(
 		`CREATE TABLE IF NOT EXISTS savings_goals (
 			id UUID PRIMARY KEY,
@@ -93,6 +188,7 @@ export async function initDatabase() {
 			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		);`
 	);
+
 	await db.executeSql(
 		`CREATE TABLE IF NOT EXISTS notifications (
 			id UUID PRIMARY KEY,
@@ -104,41 +200,4 @@ export async function initDatabase() {
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		);`
 	);
-}
-
-export async function executeSql(sql, params = []) {
-	const db = await getDb();
-	const [result] = await db.executeSql(sql, params);
-	return result;
-}
-
-export async function getAll(table) {
-	const result = await executeSql(`SELECT * FROM ${table}`);
-	const items = [];
-	for (let i = 0; i < result.rows.length; i++) {
-		items.push(result.rows.item(i));
-	}
-	return items;
-}
-
-export async function insert(table, fields) {
-	const keys = Object.keys(fields);
-	const placeholders = keys.map(() => '?').join(', ');
-	const values = Object.values(fields);
-	await executeSql(
-		`INSERT INTO ${table} (${keys.join(', ')}) VALUES (${placeholders})`,
-		values
-	);
-}
-
-export async function update(table, fields, id) {
-	const set = Object.keys(fields)
-		.map((key) => `${key} = ?`)
-		.join(', ');
-	const values = [...Object.values(fields), id];
-	await executeSql(`UPDATE ${table} SET ${set} WHERE id = ?`, values);
-}
-
-export async function remove(table, id) {
-	await executeSql(`DELETE FROM ${table} WHERE id = ?`, [id]);
 }
