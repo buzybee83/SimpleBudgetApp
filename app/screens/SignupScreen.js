@@ -1,16 +1,14 @@
-import React, { useContext, useEffect } from 'react';
-import { StyleSheet, TouchableWithoutFeedback, Keyboard, Platform, View } from 'react-native';
-import { useFocusEffect, StackActions } from '@react-navigation/native';
+import { StackActions, useFocusEffect } from '@react-navigation/native';
+import React, { useEffect } from 'react';
+import { Keyboard, Platform, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Card, Text } from 'react-native-paper';
-import { Constants, DarkTheme } from '../constants/Theme';
-import { Context as AuthContext } from '../context/AuthContext';
-import AuthForm from '../components/AuthForm';
-import NavLink from '../components/NavLink';
-import WaveShape from '../components/WaveShape';
+import AuthForm from '../../components/AuthForm';
+import NavLink from '../../components/NavLink';
+import WaveShape from '../../components/WaveShape';
+import { Constants, DarkTheme } from '../../constants/Theme';
 
 const SignupScreen = ({ navigation }) => {
-    const { state, signup, clearErrorMessage } = useContext(AuthContext);
    
     useFocusEffect(
         React.useCallback(() => {

@@ -1,11 +1,13 @@
+import RNDateTimePicker from '@react-native-community/datetimepicker';
+import { Picker } from '@react-native-picker/picker';
+import * as Localization from 'expo-localization';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Text, Switch, TextInput } from 'react-native-paper';
-import { TextInputMask, MaskService } from 'react-native-masked-text';
-import { Picker } from '@react-native-picker/picker';
-import RNDateTimePicker from '@react-native-community/datetimepicker';
-
+import { MaskService } from 'react-native-masked-text';
+import { Switch, Text, TextInput } from 'react-native-paper';
 import { Constants } from '../constants/Theme';
+
+const timeZone = Localization.getCalendars()[0]?.timeZone;
 
 const getRawValue = (formattedVal, type) => {
 	return MaskService.toRawValue(type, (formattedVal), {
@@ -19,16 +21,21 @@ const FieldTemplate = ({ item, action, childIndex }) => {
 	switch (item.type) {
 		case 'switch':
 			return (
-				<View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
-					<Text style={[styles.label, styles.labelCenter]}> {item.label} </Text>
-					<Switch
-						value={item.value}
-						trackColor={{ false: '#646464', true: '#4A148C' }}
-						onValueChange={(value) => {
-							item.value = value;
-							action(value);
-						}}
-					/>
+				<View>
+					<View style={{ flexDirection: 'row', justifyContent: 'space-around', marginBottom: 24 }}>
+						<Text style={[styles.label, styles.labelCenter]}> {item.label} </Text>
+						<Switch
+							value={item.value}
+							trackColor={{ false: '#646464', true: '#4A148C' }}
+							onValueChange={(value) => {
+								item.value = value;
+								action(value);
+							}}
+						/>
+					</View>
+					{item.tooltip && (
+						<Text style={[styles.label, styles.labelCenter]}>{item.tooltip}</Text>
+					)}
 				</View>
 			);
 		case 'currency':
@@ -51,6 +58,9 @@ const FieldTemplate = ({ item, action, childIndex }) => {
 							delimiter: ','
 						}) : ''}
 					/>
+					{item.tooltip && (
+						<Text style={[styles.label, styles.labelCenter]}> {item.tooltip}</Text>
+					)}
 				</View>
 			);
 		case 'date':
@@ -61,7 +71,8 @@ const FieldTemplate = ({ item, action, childIndex }) => {
 					<RNDateTimePicker
 						testID="datePicker"
 						textColor="white"
-						timeZoneOffsetInMinutes={today.getTimezoneOffset()}
+						design="material"
+						timeZoneName={timeZone}
 						value={item.value ? item.value : today}
 						minimumDate={today}
 						mode="date"
@@ -72,6 +83,9 @@ const FieldTemplate = ({ item, action, childIndex }) => {
 							action(selectedDate);
 						}}
 					/>
+					{item.tooltip && (
+						<Text style={[styles.label, styles.labelCenter]}> {item.tooltip}</Text>
+					)}
 				</>
 			);
 		case 'select':
@@ -99,6 +113,9 @@ const FieldTemplate = ({ item, action, childIndex }) => {
 							})
 						}
 					</Picker>
+					{item.tooltip && (
+						<Text style={[styles.label, styles.labelCenter]}> {item.tooltip}</Text>
+					)}
 				</>
 			);
 		case 'number':
@@ -127,6 +144,9 @@ const FieldTemplate = ({ item, action, childIndex }) => {
 							delimiter: ','
 						}) : ''}
 					/>
+					{item.tooltip && (
+						<Text style={[styles.label, styles.labelCenter]}> {item.tooltip}</Text>
+					)}
 				</View>
 			);
 		default:
@@ -190,18 +210,18 @@ const styles = StyleSheet.create({
 });
 
 /* <TextInputMask
-						style={styles.maskedInputStyle}
-						type={'money'}
-						value={item.value}
-						options={{
-							separator: '.',
-							delimiter: ',',
-							unit: '$',
-							suffixUnit: ''
-						}}
-						onChangeText={(value) => {
-							item.value = value;
-							action(getRawValue(value));
-						}}
-					/> */
+	style={styles.maskedInputStyle}
+	type={'money'}
+	value={item.value}
+	options={{
+		separator: '.',
+		delimiter: ',',
+		unit: '$',
+		suffixUnit: ''
+	}}
+	onChangeText={(value) => {
+		item.value = value;
+		action(getRawValue(value));
+	}}
+/> */
 

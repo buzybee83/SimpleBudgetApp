@@ -5,7 +5,7 @@ import { Button } from 'react-native-elements';
 
 export default function HomeScreen({ navigation }) {
     const handleLogout = async () => {
-        navigation.replace('Main', {screen: 'Auth'});
+        navigation.replace('Main', { screen: 'Auth' });
     }
 
     return (
@@ -15,8 +15,8 @@ export default function HomeScreen({ navigation }) {
                     <Image
                         source={
                             __DEV__
-                                ? require('../assets/images/robot-dev.png')
-                                : require('../assets/images/robot-prod.png')
+                                ? require('../../assets/images/robot-dev.png')
+                                : require('../../assets/images/robot-prod.png')
                         }
                         style={styles.welcomeImage}
                     />
@@ -44,41 +44,41 @@ HomeScreen.navigationOptions = {
 
 function DevelopmentModeNotice() {
     if (__DEV__) {
-      const learnMoreButton = (
-        <Text onPress={handleLearnMorePress} style={styles.helpLinkText}>
-          Learn more
-        </Text>
-      );
-  
-      return (
-        <Text style={styles.developmentModeText}>
-          Development mode is enabled: your app will be slower but you can use useful development
-          tools. {learnMoreButton}
-        </Text>
-      );
+        const learnMoreButton = (
+            <Text onPress={handleLearnMorePress} style={styles.helpLinkText}>
+                Learn more
+            </Text>
+        );
+
+        return (
+            <Text style={styles.developmentModeText}>
+                Development mode is enabled: your app will be slower but you can use useful development
+                tools. {learnMoreButton}
+            </Text>
+        );
     } else {
-      return (
-        <Text style={styles.developmentModeText}>
-          You are not in development mode: your app will run at full speed.
-        </Text>
-      );
+        return (
+            <Text style={styles.developmentModeText}>
+                You are not in development mode: your app will run at full speed.
+            </Text>
+        );
     }
-  }
-  
-  function handleLearnMorePress() {
+}
+
+function handleLearnMorePress() {
     WebBrowser.openBrowserAsync(
-      'https://docs.expo.io/versions/latest/workflow/development-mode/'
+        'https://docs.expo.io/versions/latest/workflow/development-mode/'
     );
-  }
-  
-  
-  
-  function handleHelpPress() {
+}
+
+
+
+function handleHelpPress() {
     WebBrowser.openBrowserAsync(
-      'https://docs.expo.io/versions/latest/get-started/create-a-new-app/#making-your-first-change'
+        'https://docs.expo.io/versions/latest/get-started/create-a-new-app/#making-your-first-change'
     );
-  }
-  
+}
+
 
 const styles = StyleSheet.create({
     container: {

@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
-import {
-    View,
-    StyleSheet, 
-    TouchableWithoutFeedback, 
-    Keyboard, 
-    TouchableOpacity,
-} from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import React, { useState } from 'react';
+import { Controller, useForm } from "react-hook-form";
+import {
+    Keyboard,
+    StyleSheet,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    View,
+} from 'react-native';
 import { MaskService } from 'react-native-masked-text';
-import { useForm, Controller } from "react-hook-form";
-import { TextInput, Button, Caption, Text } from 'react-native-paper';
+import { Button, Caption, Text, TextInput } from 'react-native-paper';
 import { Constants } from '../constants/Theme';
-import Spacer from '../components/Spacer';
-import { IncomeType, constructDaysInMonth, nth } from '../services/utilHelper';
+import { IncomeType, constructDaysInMonth, nth } from '../services/utils/utilHelper';
+import Spacer from './Spacer';
 
 const IncomeForm = ({ onSubmitForm, onDelete, income, settings }) => {
     const { control, handleSubmit, formState, watch } = useForm({

@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
 // import { Text } from 'react-native-elements';
-import { Text, Button } from 'react-native-paper';
-import { Constants } from '../constants/Theme';
+import { Button, Text } from 'react-native-paper';
+import { Constants } from '../../constants/Theme';
 // import Spacer from '../components/Spacer';
 // import { nth } from '../services/utilHelper';
 

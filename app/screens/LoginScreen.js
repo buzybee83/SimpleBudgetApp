@@ -1,19 +1,16 @@
-import React, { useEffect, useContext, useState } from 'react';
-import { StyleSheet, Text, View, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import { useFocusEffect, StackActions } from '@react-navigation/native';
-import { Card, Avatar } from 'react-native-paper';
+import { StackActions, useFocusEffect } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import { Keyboard, Platform, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { Avatar, Card } from 'react-native-paper';
 // import { useHeaderHeight } from '@react-navigation/elements';
-import { Constants, DarkTheme } from '../constants/Theme';
-import { Context as AuthContext } from '../context/AuthContext';
-import AuthForm from '../components/AuthForm';
-import NavLink from '../components/NavLink';
-import Spacer from '../components/Spacer';
-import WaveShape from '../components/WaveShape';
+import AuthForm from '../../components/AuthForm';
+import NavLink from '../../components/NavLink';
+import WaveShape from '../../components/WaveShape';
+import { Constants, DarkTheme } from '../../constants/Theme';
 
 const LoginScreen = ({ navigation }) => {
     const [doneLoading, setDoneLoading] = useState(false)
-    const { state, login, clearErrorMessage } = useContext(AuthContext);
     // const headerHeight = useHeaderHeight();
 
     useFocusEffect(
@@ -52,7 +49,7 @@ const LoginScreen = ({ navigation }) => {
                                 <Avatar.Image 
                                     style={{ marginBottom: 8, alignSelf: 'center', backgroundColor: '#fff' }} 
                                     size={68} 
-                                    source={require('../assets/images/icon.png')} />
+                                    source={require('../../assets/images/icon.png')} />
                                 <AuthForm
                                     errorMessage={state.errorMessage}
                                     submitButtonText="Login"

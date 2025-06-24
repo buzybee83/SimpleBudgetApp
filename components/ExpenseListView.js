@@ -1,19 +1,19 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import {
-	Text,
-	StyleSheet,
-	View,
-	Dimensions,
-	TouchableOpacity,
-	TouchableHighlight,
-} from 'react-native';
-import Checkbox from 'expo-checkbox';
-import { ButtonIcon } from '../components/Icons';
-import { ActivityIndicator,	Card, Button } from 'react-native-paper';
 import { MaterialIcons } from '@expo/vector-icons';
+import Checkbox from 'expo-checkbox';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+	Dimensions,
+	StyleSheet,
+	Text,
+	TouchableHighlight,
+	TouchableOpacity,
+	View,
+} from 'react-native';
+import { ActivityIndicator, Button, Card } from 'react-native-paper';
 import { SwipeListView } from 'react-native-swipe-list-view';
+import { ButtonIcon } from '../components/Icons';
 import { Constants } from '../constants/Theme';
-import { getMonthLong, nth } from '../services/utilHelper';
+import { getMonthLong, nth } from '../services/utils/utilHelper';
 
 const WINDOW_WIDTH = Dimensions.get('window').width;
 

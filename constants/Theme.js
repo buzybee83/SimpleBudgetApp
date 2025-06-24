@@ -90,20 +90,19 @@ const DarkTheme = {
 };
 
 const Colors = [
-	// '#59b2ab',
-	'#18a79b',
-	'#18a777',
-	'#1bbd87',
-	'#579bb2',
-	'#2f95dc',
-	'#0066ff',
-	'#576eb2',
-	'#5757b2',
-	'#8557b2',
-	'#6e57b2',
-	'#9966ff',
-	// '#4A148C'
+	'#18a79b', // Teal
+	'#18a777', // Green
+	'#1bbd87', // Light Green
+	'#579bb2', // Steel Blue
+	'#2f95dc', // Blue
+	'#0066ff', // Royal Blue
+	'#576eb2', // Indigo
+	'#5757b2', // Deep Indigo
+	'#8557b2', // Violet
+	'#6e57b2', // Light Violet
+	'#9966ff', // Lavender
+	'#073B4C'  // Navy
 ];
 
-export { Constants, LightTheme, DarkTheme, Colors }
+export { Colors, Constants, DarkTheme, LightTheme };
 

@@ -1,0 +1,152 @@
+export const tables = [
+    `CREATE TABLE IF NOT EXISTS users (
+        id UUID PRIMARY KEY,
+        email TEXT UNIQUE NOT NULL,
+        passwordHash TEXT,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );`,
+    `CREATE TABLE IF NOT EXISTS settings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        userId TEXT UNIQUE NOT NULL,
+        projectedSavings REAL,
+        showPreview BOOLEAN DEFAULT 1,
+        introStatus TEXT,
+        firstPayDate TEXT,
+        incomeType TEXT CHECK(incomeType IN ('Weekly', 'Bi-Weekly', 'Semi-Monthly', 'Monthly')) DEFAULT 'Bi-Weekly',
+        incomeAmount REAL,
+        thresholdEnabled BOOLEAN DEFAULT 0,
+        thresholdAmount REAL,
+        savingsEnabled BOOLEAN DEFAULT 0,
+        savingsOverride BOOLEAN DEFAULT 0,
+        savingsAmount REAL,
+        savingsAmountType TEXT CHECK(savingsAmountType IN ('%', '$')) DEFAULT '%',
+        createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
+        updatedAt TEXT DEFAULT CURRENT_TIMESTAMP
+    );`,
+    `CREATE TABLE IF NOT EXISTS monthlyDetails (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        budgetId INTEGER NOT NULL,
+        month TEXT NOT NULL,
+        totalIncome REAL DEFAULT 0,
+        totalExpenses REAL DEFAULT 0,
+        expensesPaid REAL DEFAULT 0,
+        totalSavings REAL DEFAULT 0,
+        balance REAL DEFAULT 0,
+        isActive BOOLEAN DEFAULT 1,
+        createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
+        updatedAt TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (budgetId) REFERENCES settings(id)
+    );`,
+    `CREATE TABLE IF NOT EXISTS monthlySavings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        monthId INTEGER NOT NULL,
+        incomeId INTEGER NOT NULL,
+        amount REAL NOT NULL,
+        FOREIGN KEY (monthId) REFERENCES monthlyDetails(id),
+        FOREIGN KEY (incomeId) REFERENCES incomes(id)
+    );`,
+    `CREATE TABLE IF NOT EXISTS incomes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        budgetId INTEGER NOT NULL,
+        description TEXT NOT NULL,
+        expectedDate TEXT NOT NULL,
+        isAutomated BOOLEAN DEFAULT 1,
+        frequencyType TEXT DEFAULT 'Paycheck',
+        frequency TEXT DEFAULT 'Bi-Weekly',
+        amount REAL NOT NULL,
+        createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
+        updatedAt TEXT DEFAULT CURRENT_TIMESTAMP
+    );`,
+    `CREATE TABLE IF NOT EXISTS incomeEvents (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        incomeId INTEGER NOT NULL,
+        budgetId INTEGER NOT NULL,
+        description TEXT NOT NULL,
+        expectedDate TEXT NOT NULL,
+        amount REAL NOT NULL,
+        override BOOLEAN DEFAULT 0,
+        createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
+        updatedAt TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (incomeId) REFERENCES incomes(id),
+        FOREIGN KEY (budgetId) REFERENCES settings(id)
+    );`,
+    `CREATE TABLE IF NOT EXISTS expenses (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        budgetId INTEGER NOT NULL,
+        incomeId INTEGER,
+        name TEXT NOT NULL,
+        dueDay TEXT NOT NULL,
+        amount REAL NOT NULL,
+        splitAmount REAL,
+        isPaid BOOLEAN DEFAULT 0,
+        isRecurring BOOLEAN DEFAULT 1,
+        recurringType TEXT CHECK(recurringType IN ('Weekly', 'Bi-Weekly', 'Semi-Monthly', 'Monthly', 'Bi-Monthly')) DEFAULT 'Monthly',
+        split BOOLEAN DEFAULT 0,
+        fixedAmount BOOLEAN DEFAULT 0,
+        sequenceTag TEXT,
+        status TEXT CHECK(status IN ('A', 'D')) DEFAULT 'A',
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );`,
+    `CREATE TABLE IF NOT EXISTS expenseEvents (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        expenseId INTEGER NOT NULL,
+        budgetId INTEGER NOT NULL,
+        name TEXT NOT NULL,
+        dueDay TEXT NOT NULL,
+        amount REAL NOT NULL,
+        isPaid BOOLEAN DEFAULT 0,
+        override BOOLEAN DEFAULT 0,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (expenseId) REFERENCES expenses(id),
+        FOREIGN KEY (budgetId) REFERENCES settings(id)
+    );`,
+    `CREATE TABLE IF NOT EXISTS envelopes (
+        id UUID PRIMARY KEY,
+        userId UUID,
+        name TEXT NOT NULL,
+        budgetedAmount NUMERIC NOT NULL,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );`,
+    `CREATE TABLE IF NOT EXISTS envelopeAllocations (
+        id UUID PRIMARY KEY,
+        userId UUID,
+        incomeId UUID,
+        envelopeId UUID,
+        amount NUMERIC,
+        createdAt TIMESTAMP
+    );`,
+    `CREATE TABLE IF NOT EXISTS debts (
+        id UUID PRIMARY KEY,
+        userId UUID,
+        name TEXT,
+        totalAmount NUMERIC,
+        interestRate NUMERIC,
+        minPayment NUMERIC,
+        strategy TEXT CHECK(strategy IN ('snowball', 'avalanche')),
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );`,
+    `CREATE TABLE IF NOT EXISTS savingsGoals (
+        id UUID PRIMARY KEY,
+        userId UUID,
+        name TEXT,
+        targetAmount NUMERIC,
+        currentAmount NUMERIC DEFAULT 0,
+        dueDate DATE,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );`,
+    `CREATE TABLE IF NOT EXISTS notifications (
+        id UUID PRIMARY KEY,
+        userId UUID,
+        type TEXT,
+        referenceId UUID,
+        scheduledFor TIMESTAMP,
+        triggered BOOLEAN DEFAULT FALSE,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );`
+];

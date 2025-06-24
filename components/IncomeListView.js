@@ -1,17 +1,17 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import {
-	Text,
-	StyleSheet,
-	View,
-	Dimensions,
-	TouchableOpacity,
-	TouchableHighlight,
-} from 'react-native';
-import { ActivityIndicator,	Card } from 'react-native-paper';
 import { MaterialIcons } from '@expo/vector-icons';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+	Dimensions,
+	StyleSheet,
+	Text,
+	TouchableHighlight,
+	TouchableOpacity,
+	View,
+} from 'react-native';
+import { ActivityIndicator, Card } from 'react-native-paper';
 import { SwipeListView } from 'react-native-swipe-list-view';
 import { Constants } from '../constants/Theme';
-import { nth, getMonthLong } from '../services/utilHelper';
+import { getMonthLong, nth } from '../services/utils/utilHelper';
 
 const WINDOW_WIDTH = Dimensions.get('window').width;
 

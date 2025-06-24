@@ -1,8 +1,8 @@
-import React, { useEffect, useState, useRef } from "react";
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from "react";
+import { StyleSheet, Text, View } from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
+import * as Svg from 'react-native-svg';
 import { PieChart as Pie } from 'react-native-svg-charts';
-import { Text as TextSvg } from 'react-native-svg';
 import { Constants } from '../constants/Theme';
 
 const PieChart = ({ pieData, defaultSelection }) => {
@@ -115,7 +115,7 @@ const PieChart = ({ pieData, defaultSelection }) => {
         return slices.map((slice, index) => {
             const { labelCentroid, pieCentroid, data } = slice;
             return (
-                <TextSvg
+                <Svg
                     key={index}
                     x={pieCentroid[0]}
                     y={pieCentroid[1]}
@@ -138,7 +138,7 @@ const PieChart = ({ pieData, defaultSelection }) => {
                         minimumFractionDigits: 0,
                         maximumFractionDigits: 0
                     })}` : ''} 
-                </TextSvg>
+                </Svg>
             )
         });
     }
