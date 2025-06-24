@@ -56,7 +56,7 @@ export const BudgetProvider = ({ children }) => {
 
   const createBudget = async (budget) => {
     try {
-      await insert('budgets', budget);
+      await insert('settings', budget);
       await fetchBudget();
     } catch (err) {
       dispatch({ type: 'SET_ERROR', payload: 'Failed to create budget' });

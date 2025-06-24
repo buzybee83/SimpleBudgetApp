@@ -27,6 +27,7 @@ const IncomeSlides = [
 		parent: 'incomeType',
 		field: 'netAmount',
 		label: 'Paycheck Amount',
+		tooltip: 'Your typical take-home pay after deductions.',
 		type: 'currency'
 	},
 	{

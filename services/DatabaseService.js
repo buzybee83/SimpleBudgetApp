@@ -1,5 +1,5 @@
 import { openDatabaseAsync } from 'expo-sqlite';
-import { tables } from './db/tables'; // your array of CREATE TABLE SQL strings
+import { tables } from './db/tables';
 
 let db;
 
@@ -24,27 +24,10 @@ export async function initDatabase() {
 	}
 }
 
-export async function executeSql(sql, params = []) {
+export async function getAll(table) {
 	const db = await getDb();
 	try {
-		const statements = [[sql, params]];
-		const resultSet = await db.execAsync(statements, false); // false = not readOnly
-		const rows = resultSet[0]?.rows ?? [];
-		return { rows };
-	} catch (error) {
-		console.warn('SQL Error:', sql, params, error);
-		throw error;
-	}
-}
-
-function parseRows(rowsArray) {
-	return rowsArray.map((row) => row);
-}
-
-export async function getAll(table) {
-	try {
-		const result = await executeSql(`SELECT * FROM ${table}`);
-		return result?.rows ? parseRows(result.rows) : [];
+		return await db.getAllAsync(`SELECT * FROM ${table}`);
 	} catch (error) {
 		console.warn(`getAll(${table}) failed:`, error);
 		return [];
@@ -52,50 +35,51 @@ export async function getAll(table) {
 }
 
 export async function getByField(table, field, value) {
+	const db = await getDb();
 	try {
-		const result = await executeSql(`SELECT * FROM ${table} WHERE ${field} = ?`, [value]);
-		return result?.rows ? parseRows(result.rows) : [];
+		return await db.getAllAsync(`SELECT * FROM ${table} WHERE ${field} = ?`, value);
 	} catch (error) {
 		console.warn(`getByField(${table}, ${field}) failed:`, error);
 		return [];
 	}
 }
 
-// === INCOME ===
 export async function getIncomeEventsForMonth(month) {
-	const result = await executeSql(
+	const db = await getDb();
+	return await db.getAllAsync(
 		"SELECT * FROM income_events WHERE strftime('%Y-%m', expected_date) = ?",
-		[month]
+		month
 	);
-	return result?.rows ? parseRows(result.rows) : [];
 }
 
 export async function insert(table, fields) {
+	const db = await getDb();
 	const keys = Object.keys(fields);
 	const placeholders = keys.map(() => '?').join(', ');
 	const values = Object.values(fields);
-	await executeSql(
+	await db.runAsync(
 		`INSERT INTO ${table} (${keys.join(', ')}) VALUES (${placeholders})`,
-		values
+		...values
 	);
 }
 
 export async function update(table, fields, id) {
-	const set = Object.keys(fields)
-		.map((key) => `${key} = ?`)
-		.join(', ');
+	const db = await getDb();
+	const set = Object.keys(fields).map((key) => `${key} = ?`).join(', ');
 	const values = [...Object.values(fields), id];
-	await executeSql(`UPDATE ${table} SET ${set} WHERE id = ?`, values);
+	await db.runAsync(`UPDATE ${table} SET ${set} WHERE id = ?`, ...values);
 }
 
 export async function remove(table, id) {
-	await executeSql(`DELETE FROM ${table} WHERE id = ?`, [id]);
+	const db = await getDb();
+	await db.runAsync(`DELETE FROM ${table} WHERE id = ?`, id);
 }
 
 export async function insertIncomeWithEvent(income) {
 	await insert('incomes', income);
-	const result = await executeSql('SELECT last_insert_rowid() as id');
-	const incomeId = result.rows.item(0).id;
+	const db = await getDb();
+	const result = await db.getFirstAsync('SELECT last_insert_rowid() as id');
+	const incomeId = result.id;
 
 	await insert('income_events', {
 		income_id: incomeId,
@@ -106,11 +90,11 @@ export async function insertIncomeWithEvent(income) {
 	});
 }
 
-// === EXPENSES ===
 export async function insertExpenseWithEvent(expense) {
 	await insert('expenses', expense);
-	const result = await executeSql('SELECT last_insert_rowid() as id');
-	const expenseId = result.rows.item(0).id;
+	const db = await getDb();
+	const result = await db.getFirstAsync('SELECT last_insert_rowid() as id');
+	const expenseId = result.id;
 
 	await insert('expense_events', {
 		expense_id: expenseId,
@@ -123,38 +107,36 @@ export async function insertExpenseWithEvent(expense) {
 }
 
 export async function getExpenseEventsForMonth(month) {
-	const result = await executeSql(
+	const db = await getDb();
+	return await db.getAllAsync(
 		"SELECT * FROM expense_events WHERE strftime('%Y-%m', due_day) = ?",
-		[month]
+		month
 	);
-	return result?.rows ? parseRows(result.rows) : [];
 }
 
 export async function deleteFutureExpenseEvents(expenseId, fromDate = new Date()) {
-	const cutoff = fromDate.toISOString().split('T')[0]; // YYYY-MM-DD
+	const db = await getDb();
+	const cutoff = fromDate.toISOString().split('T')[0];
 
-	const result = await executeSql(
+	const result = await db.getFirstAsync(
 		"SELECT COUNT(*) as count FROM expense_events WHERE expense_id = ? AND due_day < ?",
-		[expenseId, cutoff]
+		expenseId, cutoff
 	);
-	const hasHistory = result.rows.item(0).count > 0;
 
-	if (hasHistory) {
-		await executeSql(
+	if (result.count > 0) {
+		await db.runAsync(
 			"DELETE FROM expense_events WHERE expense_id = ? AND due_day >= ?",
-			[expenseId, cutoff]
+			expenseId, cutoff
 		);
 	} else {
-		await executeSql("DELETE FROM expense_events WHERE expense_id = ?", [expenseId]);
-		await executeSql("DELETE FROM expenses WHERE id = ?", [expenseId]);
+		await db.runAsync("DELETE FROM expense_events WHERE expense_id = ?", expenseId);
+		await db.runAsync("DELETE FROM expenses WHERE id = ?", expenseId);
 	}
 }
 
-// === SETTINGS HELPERS ===
-
 export async function getUserSettings(userId) {
-	const result = await executeSql("SELECT * FROM settings WHERE user_id = ?", [userId]);
-	return result.rows.length ? result.rows.item(0) : null;
+	const db = await getDb();
+	return await db.getFirstAsync("SELECT * FROM settings WHERE user_id = ?", userId);
 }
 
 export async function upsertSettings(fields) {
@@ -166,14 +148,12 @@ export async function upsertSettings(fields) {
 	}
 }
 
-// === MONTHLY DETAILS HELPERS ===
-
 export async function getMonthlyDetail(budgetId, month) {
-	const result = await executeSql(
+	const db = await getDb();
+	return await db.getFirstAsync(
 		"SELECT * FROM monthly_details WHERE budget_id = ? AND month = ?",
-		[budgetId, month]
+		budgetId, month
 	);
-	return result.rows.length ? result.rows.item(0) : null;
 }
 
 export async function upsertMonthlyDetail(fields) {
